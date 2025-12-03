@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { CurrentSealID, ActiveTest, RecordIDInPocketBase, PageState, CurrentSealDesc } from './lib/atom.js';
 import { useAtom, useAtomValue } from 'jotai';
 import {} from '@mantine/core'
 import pb from './lib/pocketbase.js'
-import { Card, Button } from '@mantine/core'
+import { Card, Button, RangeSlider } from '@mantine/core'
 import { useStopwatch } from 'react-timer-hook';
 import { LineChart } from '@mantine/charts';
 import '@mantine/charts/styles.css';
+import PressureAndTempCharts from './chartdata.js';
 
 
 
@@ -21,38 +22,10 @@ export default function TestRun() {
     const [ timeFromThermo, settimeFromThermo ] = useState(0);
     const [ CurrentPageState, setCurrentPageState ] = useAtom(PageState);
     const SealDesc = useAtomValue(CurrentSealDesc);
-const data = [
-  {
-    date: 'Mar 22',
-    Apples: 2890,
-    Oranges: 2338,
-    Tomatoes: 2452,
-  },
-  {
-    date: 'Mar 23',
-    Apples: 2756,
-    Oranges: 2103,
-    Tomatoes: 2402,
-  },
-  {
-    date: 'Mar 24',
-    Apples: 3322,
-    Oranges: 986,
-    Tomatoes: 1821,
-  },
-  {
-    date: 'Mar 25',
-    Apples: 3470,
-    Oranges: 2108,
-    Tomatoes: 2809,
-  },
-  {
-    date: 'Mar 26',
-    Apples: 3129,
-    Oranges: 1726,
-    Tomatoes: 2290,
-  },
-];
+    const [TempVals, setTempVals] = useState([1,2,3,4,5,5]);
+    const [PressureVals, setPressureVals] = useState([3,4,5,5,5,5]);
+ 
+
     const getTime = async() => {
         try{
 
@@ -167,25 +140,9 @@ const data = [
                 <h3>Pump Has Been On For (According to Thermo): </h3>   {isActive ? <h3> { Thermostopwatch() } </h3> : <h3>{ THERMOtimeIFINACTIVE() } </h3> }
                 </Card>
                      </div>
-                <h2>Graph View of Temp: </h2>
-                <div>
-                <LineChart
-                style = {{ margin: "2em"}}
-        h = {300}
-        w = {700}
-      data={data}
-      
-  series={[
-        { name: 'Apples', color: 'indigo.6' },
-        { name: 'Oranges', color: 'blue.6' },
-        { name: 'Tomatoes', color: 'teal.6' },
-      ]}
-      dataKey="date"
-      
-      curveType="linear"
-    />
-             </div>   
-   
+                   <PressureAndTempCharts 
+                   TempVals = {TempVals}
+                   PressureVals = {PressureVals} />
         </>
     )
 }
