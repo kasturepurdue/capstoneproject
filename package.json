@@ -10,10 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mantine/charts": "^8.3.9",
     "@mantine/code-highlight": "^7.17.2",
     "@mantine/core": "^7.17.2",
     "@mantine/dates": "^7.17.2",
-    "@mantine/form": "^7.17.2",
+    "@mantine/form": "^7.17.8",
     "@mantine/hooks": "^7.17.2",
     "@tanstack/react-query": "^5.74.3",
     "bulma": "^1.0.3",
@@ -22,7 +23,9 @@
     "pocketbase": "^0.25.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hook-form": "^7.54.2"
+    "react-hook-form": "^7.54.2",
+    "react-timer-hook": "^4.0.5",
+    "timer-node": "^5.0.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

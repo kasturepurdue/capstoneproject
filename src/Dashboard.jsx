@@ -3,8 +3,11 @@ import { Avatar, Button } from '@mantine/core'
 import { useState } from 'react'
 import { useForm  } from 'react-hook-form'
 import CalendarMenu from './CalendarMenu.jsx'
-import SealType from './SealType.jsx'
 import { AppShell } from '@mantine/core'
+import { PageState } from './lib/atom.js';
+import { useAtom } from 'jotai';
+import AddTest from './AddTest.jsx';
+import TestRun from './TestRun.jsx';
 
 
 export default function Dashboard(){
@@ -15,12 +18,25 @@ export default function Dashboard(){
     const [ selectedDashboardOption, setDashboardOption ] = useState('calendar');
     const {register, handleSubmit} = useForm();
     const email =  pb.authStore.model.email;
-
+    const[ CurrentPageState, setPageState] = useAtom(PageState);
     const onSubmit = (data) => console.log(data);
 
     const handleDropdownChange = (e) =>{
       setDashboardOption(e.target.value);
     }
+
+    function content(){
+      
+if (CurrentPageState === "calendar") {
+  return <CalendarMenu />;
+} else if (CurrentPageState === "testrun") {
+  return <TestRun />;
+}
+else if (CurrentPageState === "addtest"){
+  return <AddTest />
+}
+    }
+    console.log(CurrentPageState === "calendar");
     /*
     return( 
         <>
@@ -92,16 +108,7 @@ export default function Dashboard(){
  <div style ={{ display: "flex", flexDirection:"row", alignItems: "center", gap: "2rem", margin: "auto"  }}>
     <div>  </div>
     <h2>BLACK HAWK SEALS</h2>
-    <div className="select">
-                  <form onSubmit={handleSubmit(onSubmit)}>
-                    <select {... register("area")}
-                    onChange = {handleDropdownChange}
-                    value = {selectedDashboardOption}>
-                      <option value ="calendar">Calendar</option>
-                      <option value ="sealtypes">Seal Types</option>
-                    </select>
-                    </form>
-                  </div>
+
                   </div>
   </AppShell.Header>
 
@@ -121,12 +128,7 @@ export default function Dashboard(){
   </AppShell.Navbar>
 
   <AppShell.Main>
-  {
-        (selectedDashboardOption == "calendar") ?(
-          <CalendarMenu />
-        ): <SealType />
-
-      }
+  { content() }
   </AppShell.Main>
 </AppShell>
  )

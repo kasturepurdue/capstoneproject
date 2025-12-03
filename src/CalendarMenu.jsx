@@ -7,16 +7,23 @@ import { useState, useEffect } from 'react';
 import dayRender from './DayRender.tsx';
 import { atom, useAtom } from 'jotai';
 //import global Day Variable
-import { DaysGlobal } from './lib/atom.js';
+import { DaysGlobal, DaysGlobalforRenderer, PageState } from './lib/atom.js';
+import  ListTests  from './ListTests.jsx';
+import HowManyTests from './HowManyTests.jsx';
 
 
 export default function CalendarMenu() {
     const [currentView, setCurrentView] = useState(new Date());
     const [events, setEvents] = useState([]);  
     const [selectedDaysGlobal, setDaysGlobal] = useAtom(DaysGlobal);
-    const[selectedDate, setSelectedDate] = useState();
+    const [selectedDaysGlobalForRenderer, setDaysGlobalForRenderer] = useAtom(DaysGlobalforRenderer);
+    const[selectedDate, setSelectedDate] = useState(new Date());
+    const[recordData, setRecords] = useState([]);
+    const[CurrentPageState, setCurrentPageState] = useAtom(PageState);
 
-
+    const handleAddTest = () => {
+        setCurrentPageState("addtest");
+    };
     async function getRecordsByMonth(date) {
         const year = date.getFullYear();
         const month = date.getMonth() + 1; // JavaScript months are 0-indexed
@@ -42,6 +49,7 @@ export default function CalendarMenu() {
              sort: 'expected',
             });
             setEvents(testData);
+            setRecords(testData);
             console.log(testData);
             
         } catch (error) {
@@ -76,11 +84,12 @@ export default function CalendarMenu() {
         const selectedDaysISO = events.map(event => {return new Date(event.expected.replace(' ', 'T'))});
         //get the day
        const selectedDays = selectedDaysISO.map(selectedDay => {return selectedDay.getDate()});
-       setDaysGlobal(selectedDays);
+       setDaysGlobalForRenderer(selectedDays);
        
       }, [events]);
      useEffect(() => {
         console.log(selectedDate)
+        setDaysGlobal(selectedDate);
     },[selectedDate])
 
       
@@ -88,19 +97,9 @@ export default function CalendarMenu() {
 
     return (
         <>
+      
         <div style ={{ display:"flex", flexDirection: "row", gap:"2em"}}>
-         <Card shadow="sm" radius="md" withBorder  style = {{width: "10em", height: "10em"}}>
-          <p>Tests Done:</p>
-          <h2>2</h2>
-          </Card>
-          <Card shadow="sm" radius="md" withBorder style = {{width: "10em", height: "10em"}}>
-          <p>Tests Pending:</p>
-          <h2>2</h2>
-          </Card>
-          <Card shadow="sm" radius="md" withBorder  style = {{width: "10em", height: "10em"}}>
-          <p>Overdue Tests:</p>
-          <h2>2</h2>
-          </Card>
+        <HowManyTests records = { recordData }/>
           </div>
         <div style ={{display: "flex", flexDirection: "row", gap: "7em", marginTop: "2em"}}>
     
@@ -115,15 +114,11 @@ export default function CalendarMenu() {
                 onNextMonth={setCurrentView}
                 renderDay={dayRender}/>
        
-       <Card shadow="sm" radius="md" withBorder>
-        <h3>Seal Test #3435</h3>
-        <p>Seal</p>
-        <Button>Test Completed</Button>
-        <h3>Seal Test #3435</h3>
-        <p>Seal</p>
-        <Button color="red">Start Test</Button>
-       </Card>
+       <ListTests records = { recordData} />
+
+       <Button onClick = {handleAddTest}>Add New Test</Button>
      </div>
+     
      </>
       
     

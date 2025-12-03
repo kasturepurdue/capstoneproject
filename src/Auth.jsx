@@ -26,30 +26,7 @@ export default function Auth(){
             alert(e);
         }
     }
-   /*     return(
-            <>
-            {isLoading && <p>Authentication In Progress</p>}
-            <div className="container is-flex is-justify-content-center">
-        <div style = {{width : "25%"}}>
-             <form onSubmit={handleSubmit(login)} class = "box">
-             <div class="field">
-             <label class="label">Email</label>
-             <div class="control">
-                <input type ="text"  class="input" placeholder="email" {...register("email")}/>
-                </div>
-                </div>
-                <div class="field">
-                <label class="label">Password</label>
-                <div class="control">
-                <input type ="password" class="input" placeholder="password" {...register("password")}/>
-                </div></div>
-                <button class ="button is-primary" type="submit" disabled={isLoading}>{isLoading ? "Loading":"Login"}</button>
-             </form>
-             </div>
-             </div>
-            </>
-        );
-        */
+
        return (
         <>
         <div style = {{ display: "flex", justifyContent: "center", marginTop:"10%", flexDirection: "column", alignItems: "center"}}>
