@@ -8,3 +8,4 @@ export const CurrentSealID = atom('');
 export const ActiveTest = atom(false);
 export const RecordIDInPocketBase = atom();
 export const CurrentSealDesc = atom("");
+export const ToLoadInValues = atom(false);

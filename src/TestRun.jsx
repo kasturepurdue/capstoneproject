@@ -1,20 +1,22 @@
 import { useState, useMemo, useEffect } from 'react';
-import { CurrentSealID, ActiveTest, RecordIDInPocketBase, PageState, CurrentSealDesc } from './lib/atom.js';
+import { CurrentSealID, ActiveTest, ToLoadInValues, RecordIDInPocketBase, PageState, CurrentSealDesc } from './lib/atom.js';
 import { useAtom, useAtomValue } from 'jotai';
 import {} from '@mantine/core'
 import pb from './lib/pocketbase.js'
-import { Card, Button, RangeSlider } from '@mantine/core'
+import { Card, Button } from '@mantine/core'
 import { useStopwatch } from 'react-timer-hook';
 import { LineChart } from '@mantine/charts';
 import '@mantine/charts/styles.css';
-import PressureAndTempCharts from './chartdata.js';
+import PressureAndTempCharts from './ChartRender.js';
 
 
 
 
 export default function TestRun() {
     const [ PageCurrentSealID, setPageCurrentSealID ]  = useAtom(CurrentSealID);
-    const isActive = useAtomValue(ActiveTest);
+    const [ isActive, setisActive ] = useAtom(ActiveTest);
+    const [ PLCisOnTimer, setPLCisOnTimer ] = useState(false);
+    const [ ThermoisOnTimer, setThermoisOnTimer ] = useState(false);
     const [ PLCisOn, setPLCisOn ] = useState(false);
     const [ ThermoisOn, setThermoisOn ] = useState(false);
     const recordidPB  = useAtomValue(RecordIDInPocketBase);
@@ -22,13 +24,25 @@ export default function TestRun() {
     const [ timeFromThermo, settimeFromThermo ] = useState(0);
     const [ CurrentPageState, setCurrentPageState ] = useAtom(PageState);
     const SealDesc = useAtomValue(CurrentSealDesc);
-    const [TempVals, setTempVals] = useState([1,2,3,4,5,5]);
-    const [PressureVals, setPressureVals] = useState([3,4,5,5,5,5]);
+    const LoadInValues = useAtomValue(ToLoadInValues);
+    const [TempVals, setTempVals] = useState([1,2,3,4,5]);
+    const [PressureVals, setPressureVals] = useState([1,2,3,4,5]);
+    const [ TestState, setTestState ] = useState(0);
  
 
     const getTime = async() => {
         try{
-
+           const record = await pb.collection('tests').getOne(recordidPB,{
+            
+            });
+            const freshRecord = structuredClone(record);
+            console.log(freshRecord);
+            setTempVals(freshRecord.TestDataTemp);
+            
+            setPressureVals(freshRecord.TestDataPressure);
+            settimeFromPLC(freshRecord.timeInSecondsPLC);
+            settimeFromThermo(freshRecord.timeInSecondsThermo);
+            
         }
         catch(e){
     alert(e);
@@ -38,9 +52,14 @@ export default function TestRun() {
 
     const pushTime = async() => {
          try{
+          console.log(recordidPB);
             await pb.collection('tests').update(recordidPB,
                 { timeInSecondsPLC: timeFromPLC,
-                    timeInSecondsThermo: timeFromThermo
+                    timeInSecondsThermo: timeFromThermo,
+                    TestDataTemp: TempVals,
+                    TestDataPressure: PressureVals,
+                    active: isActive
+
                  });
             
         }
@@ -51,11 +70,24 @@ export default function TestRun() {
     }
     //if we already have the time since our test is finished, we will use these two functions
     function PLCtimeIFINACTIVE(){
-        return;
+      const H = timeFromPLC % 3600;
+      const M = timeFromPLC % 60;
+      const S = timeFromPLC;
+        return (
+          <>
+          { H }H:{ M }M:{ S }S
+          </> )
+        
    
-    }
+    };
     function THERMOtimeIFINACTIVE(){
-        return;
+         const H = timeFromThermo % 3600;
+      const M = timeFromThermo % 60;
+      const S = timeFromThermo;
+        return (
+          <>
+          { H }H:{ M }M:{ S }S
+          </> )
       
     }
     //otherwise these functions will measure the time for us
@@ -72,7 +104,7 @@ export default function TestRun() {
     start,
     pause,
     reset,
-  } = useStopwatch({ autoStart: PLCisOn, interval: 1 });
+  } = useStopwatch({ autoStart: PLCisOnTimer, interval: 1 });
          useEffect(()=> {
             if(seconds === 0){
                 return;
@@ -101,7 +133,7 @@ export default function TestRun() {
     start,
     pause,
     reset,
-  } = useStopwatch({ autoStart: setThermoisOn, interval: 1 });
+  } = useStopwatch({ autoStart: setThermoisOnTimer, interval: 1 });
         useEffect(()=> {
             if(seconds === 0){
                 return;
@@ -118,11 +150,36 @@ export default function TestRun() {
 
     }
 
+
+
+
+    useEffect(() => {
+      if (isActive === false ) {
+        getTime();
+        console.log(TempVals);
+
+      }
+      else{
+        setTestState(1);
+      }
+
+    },[CurrentPageState]);
+
+    useEffect(() => {
+      if(TestState === 3){
+        pushTime();
+      }
+
+    },[TestState]);
+      
+ 
+
+
     return (
         <>
 
-      
-            <div style = {{display: "flex"}}>    <h1>Current Seal ID: {PageCurrentSealID}</h1> 
+          <div style = {{justifyContent: "center"}}>
+            <div style = {{display: "flex"}}>    <h3>Seal ID: {PageCurrentSealID}</h3> 
             
             <p style = {{marginLeft: "3em"}}>Description of the Seal: { SealDesc }</p> </div>
                 {isActive ? 
@@ -143,6 +200,7 @@ export default function TestRun() {
                    <PressureAndTempCharts 
                    TempVals = {TempVals}
                    PressureVals = {PressureVals} />
+                   </div>
         </>
     )
 }

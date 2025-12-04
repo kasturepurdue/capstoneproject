@@ -3,7 +3,7 @@ import { Card, Button, List  } from "@mantine/core"
 import { useState, useEffect } from "react";
 import pb from './lib/pocketbase';
 import { atom, useAtom, useAtomValue } from 'jotai';
-import { DaysGlobal, RecordIDInPocketBase, PageState, CurrentSealID, ActiveTest, CurrentSealDesc } from './lib/atom.js';
+import { ToLoadInValues, RecordIDInPocketBase, PageState, CurrentSealID, ActiveTest, CurrentSealDesc } from './lib/atom.js';
 
 export default function ListTests( { records } ) {
 const [ SealID, setCurrentSealID ] = useAtom(CurrentSealID);
@@ -12,6 +12,7 @@ const [ CurrentPageState, setPageState] = useAtom(PageState);
     const [ isActive, setisActive ] = useAtom(ActiveTest);
     const [ recordIDPB, setrecordIDPB ] = useAtom( RecordIDInPocketBase );
     const [ SealDesc, setSealDesc ] = useAtom( CurrentSealDesc);
+    const [ LoadInValues, setLoadInValues ] = useAtom(ToLoadInValues);
 useEffect(()=> {
 
     setCurrentSealID(PageSealID);
@@ -52,8 +53,9 @@ useEffect(()=> {
          
          onClick = {() => {setPageSealID(record.SEALID);
           setisActive(record.active);
-          setrecordIDPB(record.collectionId);
+          setrecordIDPB(record.id);
           setSealDesc(record.sealdesc);
+          { isActive ? setLoadInValues(true): setLoadInValues(false) }
 
          }}>
           {record.active  === true ? "Start  Test" : "Test Completed"}
