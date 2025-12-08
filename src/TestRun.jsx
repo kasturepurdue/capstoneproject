@@ -27,7 +27,7 @@ export default function TestRun() {
     const [ CurrentPageState, setCurrentPageState ] = useAtom(PageState);
     const SealDesc = useAtomValue(CurrentSealDesc);
     const LoadInValues = useAtomValue(ToLoadInValues);
-    const [TempVals, setTempVals] = useState([1,2,3,4,5]);
+    const [TempVals, setTempVals] = useState([0,0]);
     const [PressureVals, setPressureVals] = useState([1,2,3,4,5]);
     const [ TestState, setTestState ] = useState(0);
     const wsRef = useRef(null); // 1. Create a ref to store the socket
@@ -143,9 +143,9 @@ const H = Math.floor(timeFromPLC / 3600);
    
     };
     function THERMOtimeIFINACTIVE(){
-         const H = timeFromThermo % 3600;
-      const M = timeFromThermo % 60;
-      const S = timeFromThermo;
+ const H = Math.floor(timeFromPLC / 3600);
+  const M = Math.floor((timeFromPLC % 3600) / 60);
+  const S = timeFromPLC % 60;
         return (
           <>
           { H }H:{ M }M:{ S }S
@@ -264,9 +264,12 @@ useEffect(() => {
       };
 
       ws.onmessage = (e) => {
-       
-        console.log(e.data);
-        // setTempData((prev) => [...prev, e.data]);
+       const data = JSON.parse(e.data);  // This is the key line!
+
+
+
+      setTempVals((prev) => [...prev, Number(data)]);
+     console.log(data);
       };
 
       ws.onerror = () => {
@@ -278,8 +281,8 @@ useEffect(() => {
        ws.onclose = () => {
          console.log("Connection closed via server or error");
       };
-      
-     
+
+
     }
   }
 
@@ -291,7 +294,7 @@ useEffect(() => {
       setThermoisOnTimer(false);
       console.log("Closed temp connection!");
     }
-    
+
 
     setisActive(false);
     pushTime();

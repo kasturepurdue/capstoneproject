@@ -20,7 +20,7 @@ export default function PressureAndTempCharts({TempVals, PressureVals}: Pressure
     seconds: index,
     PSI: pressureVal,   // better name than "temperature" here!
   }));
-console.log(tempData);
+
     return(
           <div style = {{display: "flex"}}>
                      
@@ -30,7 +30,7 @@ console.log(tempData);
                        <RangeSlider
      w = {350}
            min={0}           // replaces domain[0]
-  max={TempVals.length}  
+  max={100}  
       minRange={1} 
 />
                 <LineChart
