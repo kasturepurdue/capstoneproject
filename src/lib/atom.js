@@ -9,3 +9,4 @@ export const ActiveTest = atom(false);
 export const RecordIDInPocketBase = atom();
 export const CurrentSealDesc = atom("");
 export const ToLoadInValues = atom(false);
+export const numOfCycles = atom(0);

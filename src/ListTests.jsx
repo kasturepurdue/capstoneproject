@@ -3,7 +3,7 @@ import { Card, Button, List  } from "@mantine/core"
 import { useState, useEffect } from "react";
 import pb from './lib/pocketbase';
 import { atom, useAtom, useAtomValue } from 'jotai';
-import { ToLoadInValues, RecordIDInPocketBase, PageState, CurrentSealID, ActiveTest, CurrentSealDesc } from './lib/atom.js';
+import { ToLoadInValues, RecordIDInPocketBase, PageState, CurrentSealID, ActiveTest, CurrentSealDesc, numOfCycles } from './lib/atom.js';
 
 export default function ListTests( { records } ) {
 const [ SealID, setCurrentSealID ] = useAtom(CurrentSealID);
@@ -13,6 +13,7 @@ const [ CurrentPageState, setPageState] = useAtom(PageState);
     const [ recordIDPB, setrecordIDPB ] = useAtom( RecordIDInPocketBase );
     const [ SealDesc, setSealDesc ] = useAtom( CurrentSealDesc);
     const [ LoadInValues, setLoadInValues ] = useAtom(ToLoadInValues);
+    const [ CycleCount, setCycleCount ] = useAtom(numOfCycles);
 useEffect(()=> {
 
     setCurrentSealID(PageSealID);
@@ -55,6 +56,7 @@ useEffect(()=> {
           setisActive(record.active);
           setrecordIDPB(record.id);
           setSealDesc(record.sealdesc);
+          setCycleCount(record.cycleCount);
           { isActive ? setLoadInValues(true): setLoadInValues(false) }
 
          }}>

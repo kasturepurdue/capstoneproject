@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { CurrentSealID, ActiveTest, ToLoadInValues, RecordIDInPocketBase, PageState, CurrentSealDesc } from './lib/atom.js';
+import { CurrentSealID, ActiveTest, ToLoadInValues, RecordIDInPocketBase, PageState, CurrentSealDesc, numOfCycles } from './lib/atom.js';
 import { useAtom, useAtomValue } from 'jotai';
 import {} from '@mantine/core'
 import pb from './lib/pocketbase.js'
@@ -31,8 +31,40 @@ export default function TestRun() {
     const [PressureVals, setPressureVals] = useState([1,2,3,4,5]);
     const [ TestState, setTestState ] = useState(0);
     const wsRef = useRef(null); // 1. Create a ref to store the socket
+    const NumCycles = useAtomValue(numOfCycles);
+    const [ currentCycleCount, setcurrentCycleCount ] = useState(0);
 
-  
+
+
+    const getCycleCount = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/webhook?event=Cycle_Check', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+
+        });
+        if(!response.ok){
+          throw new Error(`HTTP error! status: ${response.status}`);
+
+        }
+        data = await response.json();
+
+        setcurrentCycleCount(Number(data));
+        console.log('Success', data);
+
+       
+       }
+catch (error){
+        console.log('Error sending request', error);
+
+      }
+       
+        
+
+    };
+
     const turnMotorOn = async () => {
     try {
       const response = await fetch('http://localhost:5000/webhook', {
@@ -43,23 +75,24 @@ export default function TestRun() {
         body: JSON.stringify({
           event: 'Change_Motor',
           Motor_Status: 1,
+          
         }),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
 
       const data = await response.json(); // if the server returns JSON
       console.log('Success:', data);
       
     } catch (error) {
       console.error('Error sending request:', error);
-      /*
       alert("Cannot run test! Please recheck connection with the PLC and proper installation of the webhook!");
       setPageCurrentSealID('');
       setCurrentPageState("calendar");
-      */
+ 
       
      
     }
@@ -175,6 +208,7 @@ const H = Math.floor(timeFromPLC / 3600);
             }
             settimeFromPLC(totalSeconds);
             console.log(seconds);
+            getCycleCount();
      
         },[seconds])
         useEffect(() => {
@@ -274,9 +308,11 @@ useEffect(() => {
 
       ws.onerror = () => {
         alert("Cannot read temperature! Please check your Arduino connection!");
+        /*
         setPageCurrentSealID('');
         setCurrentPageState('calendar');
         setThermoisOnTimer(false);
+        */
       };
        ws.onclose = () => {
          console.log("Connection closed via server or error");
@@ -284,7 +320,14 @@ useEffect(() => {
 
 
     }
-  }
+   
+ 
+
+    }
+    
+    
+    
+
 
   // CASE: END TEST (Disconnect & Save)
   if (TestState === 3) {
@@ -300,7 +343,8 @@ useEffect(() => {
     pushTime();
     setCurrentPageState("calendar");
     setPageCurrentSealID('');
-  }
+   
+  };
 
   // CLEANUP: Runs when component unmounts
   return () => {
@@ -308,14 +352,19 @@ useEffect(() => {
        wsRef.current.close();
        wsRef.current = null;
     }
+  
+
   };
 
 }, [TestState]);
     
 
+useEffect(()=> {
+  if(currentCycleCount == NumCycles){
+    setTestState(3);
+  }
 
-
-      
+},[currentCycleCount])
  
 
 

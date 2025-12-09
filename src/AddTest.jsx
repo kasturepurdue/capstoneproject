@@ -12,6 +12,7 @@ export default function AddTest() {
   const [SealDesc, setSealDesc] = useState('');
   const [whatDate, setDate] = useState(new Date());
   const [CurrentPageState, setPageState] = useAtom(PageState);
+  const [ NumOfCycles, setNumOfCycles ] = useState(0);
   const home = () =>{
         setPageState("calendar");
   }
@@ -32,6 +33,7 @@ export default function AddTest() {
         userWhoCreatedTest: email,
         lotNumber: lotNum,
         dateofMfg: dateofMfg,
+        cycleCount: NumOfCycles,
         active: true,
 
       });
@@ -73,7 +75,15 @@ export default function AddTest() {
           style={{ display: 'inline-block', width: 300, marginLeft: 8 }}
         />
       </div>
-
+ <div style={{ marginBottom: 10 }}>
+        Number of Cycles:
+        <TextInput
+          value={NumOfCycles}
+          onChange={(e) => setNumOfCycles(e.currentTarget.value)}
+          placeholder="Description"
+          style={{ display: 'inline-block', width: 300, marginLeft: 8 }}
+        />
+      </div>
       <div style={{ marginBottom: 10 }}>
         Expected Test Date:
         <DatePickerInput
@@ -83,6 +93,7 @@ export default function AddTest() {
           style={{ display: 'inline-block', marginLeft: 8 }}
         />
       </div>
+
       <div style={{ marginBottom: 10 }}>
        Date of Seal Manufacture:
         <DatePickerInput
