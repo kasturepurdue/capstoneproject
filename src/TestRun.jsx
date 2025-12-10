@@ -49,10 +49,10 @@ export default function TestRun() {
           throw new Error(`HTTP error! status: ${response.status}`);
 
         }
-        data = await response.json();
-
-        setcurrentCycleCount(Number(data));
-        console.log('Success', data);
+        const data = await response.json();
+        
+        setcurrentCycleCount(data.numCycles);
+        console.log('Successx ', data);
 
        
        }
@@ -65,6 +65,8 @@ catch (error){
 
     };
 
+    
+
     const turnMotorOn = async () => {
     try {
       const response = await fetch('http://localhost:5000/webhook', {
@@ -75,6 +77,7 @@ catch (error){
         body: JSON.stringify({
           event: 'Change_Motor',
           Motor_Status: 1,
+          Num_Cycles: NumCycles,
           
         }),
       });
@@ -338,7 +341,7 @@ useEffect(() => {
       console.log("Closed temp connection!");
     }
 
-
+    turnMotorOff();
     setisActive(false);
     pushTime();
     setCurrentPageState("calendar");
@@ -363,6 +366,7 @@ useEffect(()=> {
   if(currentCycleCount == NumCycles){
     setTestState(3);
   }
+  
 
 },[currentCycleCount])
  
@@ -375,6 +379,7 @@ useEffect(()=> {
             <div style = {{display: "flex"}}>    <h3>Seal ID: {PageCurrentSealID}</h3> 
             
             <p style = {{marginLeft: "3em"}}>Description of the Seal: { SealDesc }</p> </div>
+          <div style = {{display:"flex"}}> <p style = {{marginLeft: "3em"}}>Cycles Ran: { currentCycleCount }/{ NumCycles }</p></div> 
      
               {isActive? ( 
                 (TestState === 1) ?
@@ -384,7 +389,7 @@ useEffect(()=> {
                   setPLCisOnTimer(true);
                   console.log(PLCisOnTimer);
                 }} style = {{margin: "2em"}}>Run Test</Button> :
-                 <Button onClick = {() => { turnMotorOff();
+                 <Button onClick = {() => { 
                   setTestState(3);
                   setPLCisOnTimer(false);
                   
