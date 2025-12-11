@@ -365,6 +365,7 @@ useEffect(() => {
 useEffect(()=> {
   if(currentCycleCount == NumCycles){
     setTestState(3);
+    alert("You have hit the maximum cycles for this test!");
   }
   
 

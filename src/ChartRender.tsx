@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import React from 'react';
 import { Card, RangeSlider, Button } from '@mantine/core';
 import { LineChart } from '@mantine/charts';
-
+import { mkConfig, generateCsv, download } from "export-to-csv";
+import { CurrentSealID } from "./lib/atom.js";
+import { useAtomValue } from 'jotai';
 
 interface PressureAndTempChartsProps {
   TempVals: number[];      // array of temperature points
@@ -16,10 +18,32 @@ export default function PressureAndTempCharts({TempVals, PressureVals}: Pressure
     degreesCel: temp,
   }));
 
+  const SealID = useAtomValue(CurrentSealID);
+
   const pressureData = PressureVals.map((pressureVal, index) => ({
     seconds: index,
     PSI: pressureVal,   // better name than "temperature" here!
   }));
+  const csvConfigTemp = mkConfig({
+    useKeysAsHeaders: true,
+    filename: "TempValuesTestForSealID" + SealID,
+    showTitle: true,
+    title: "Temperature Values Over Time",
+  });
+    const csvConfigPressure = mkConfig({
+    useKeysAsHeaders: true,
+    filename: "PressureValuesTestForSealID" + SealID,
+    showTitle: true,
+    title: "Pressure Values Over Time",
+  });
+  const exportCSVTemp = () =>{
+      const csv = generateCsv(csvConfigTemp)(tempData);
+      download(csvConfigTemp)(csv);
+  };
+    const exportCSVPressure = () =>{
+      const csv = generateCsv(csvConfigPressure)(pressureData);
+      download(csvConfigPressure)(csv);
+  };
 
     return(
           <div style = {{display: "flex"}}>
@@ -46,6 +70,9 @@ export default function PressureAndTempCharts({TempVals, PressureVals}: Pressure
  
       curveType="linear"
     />
+     <Button onClick = {exportCSVTemp}>
+      Export Temp Values to CSV
+    </Button>
     </Card>
      <Card>
                 <h2>Graph View of Pressure: </h2>
@@ -69,7 +96,11 @@ export default function PressureAndTempCharts({TempVals, PressureVals}: Pressure
  
       curveType="linear"
     />
+         <Button onClick = {exportCSVPressure}>
+      Export Pressure Values to CSV
+    </Button>
     </Card>
+   
 
 
              </div>   
